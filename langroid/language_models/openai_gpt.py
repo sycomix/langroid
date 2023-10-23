@@ -149,7 +149,7 @@ class OpenAIGPT(LanguageModel):
             if event_fn_name:
                 function_name = event_fn_name
                 has_function = True
-                sys.stdout.write(Colors().GREEN + "FUNC: " + event_fn_name + ": ")
+                sys.stdout.write(f"{Colors().GREEN}FUNC: {function_name}: ")
                 sys.stdout.flush()
             if event_args:
                 function_args += event_args

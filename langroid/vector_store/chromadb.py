@@ -130,11 +130,10 @@ class ChromaDB(VectorStore):
             for i, c in enumerate(contents):
                 print_long_text("red", "italic red", f"MATCH-{i}", c)
         metadatas = results["metadatas"][0]
-        docs = [
+        return [
             Document(content=d, metadata=DocMetaData.parse_obj(m))
             for d, m in zip(contents, metadatas)
         ]
-        return docs
 
 
 # Example usage and testing

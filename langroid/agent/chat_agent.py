@@ -173,10 +173,7 @@ class ChatAgent(Agent):
             request = message_class.default_value("request")
             llm_function = message_class.llm_function_schema()
             self.llm_functions_map[request] = llm_function
-            if force:
-                self.llm_function_force = dict(name=llm_function.name)
-            else:
-                self.llm_function_force = None
+            self.llm_function_force = dict(name=llm_function.name) if force else None
         n_usable_tools = len(self.llm_tools_usable)
         for t in tools:
             if handle:
@@ -410,7 +407,7 @@ class ChatAgent(Agent):
                 response_str = str(response.function_call)
             else:
                 response_str = response.message
-            print(cached + "[green]" + response_str)
+            print(f"{cached}[green]{response_str}")
 
         return ChatDocument.from_LLMResponse(response, displayed)
 
@@ -472,7 +469,7 @@ class ChatAgent(Agent):
                 "before calling chat_num_tokens()."
             )
         hist = messages if messages is not None else self.message_history
-        return sum([self.parser.num_tokens(m.content) for m in hist])
+        return sum(self.parser.num_tokens(m.content) for m in hist)
 
     def message_history_str(self, i: Optional[int] = None) -> str:
         """

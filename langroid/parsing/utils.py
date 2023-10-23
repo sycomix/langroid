@@ -26,7 +26,4 @@ def generate_random_sentences(k: int) -> str:
 
 def generate_random_text(num_sentences: int) -> str:
     fake = Faker()
-    text = ""
-    for _ in range(num_sentences):
-        text += fake.sentence() + " "
-    return text
+    return "".join(f"{fake.sentence()} " for _ in range(num_sentences))

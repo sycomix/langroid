@@ -17,7 +17,7 @@ def rmdir(path: str) -> bool:
     Returns:
         True if a dir was removed, false otherwise. Raises error if failed to remove.
     """
-    if not any([path.startswith(p) for p in DELETION_ALLOWED_PATHS]):
+    if not any(path.startswith(p) for p in DELETION_ALLOWED_PATHS):
         raise ValueError(
             f"""
         Removing Dir '{path}' not allowed. 

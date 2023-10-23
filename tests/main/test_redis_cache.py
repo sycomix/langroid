@@ -6,8 +6,7 @@ from langroid.cachedb.redis_cachedb import RedisCache, RedisCacheConfig
 @pytest.fixture
 def fake_redis_cache():
     config = RedisCacheConfig(fake=True)
-    cache = RedisCache(config=config)
-    return cache
+    return RedisCache(config=config)
 
 
 @pytest.mark.unit
@@ -26,8 +25,7 @@ def real_redis_cache():
         hostname="redis-11524.c251.east-us-mz.azure.cloud.redislabs.com",
         port=11524,
     )
-    cache = RedisCache(config=config)
-    return cache
+    return RedisCache(config=config)
 
 
 @pytest.mark.integration

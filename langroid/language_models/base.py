@@ -49,7 +49,7 @@ class LLMFunctionCall(BaseModel):
     arguments: Optional[Dict[str, Any]] = None
 
     def __str__(self) -> str:
-        return "FUNC: " + json.dumps(self.dict(), indent=2)
+        return f"FUNC: {json.dumps(self.dict(), indent=2)}"
 
 
 class LLMFunctionSpec(BaseModel):
@@ -103,7 +103,7 @@ class LLMMessage(BaseModel):
 
     def __str__(self) -> str:
         if self.function_call is not None:
-            content = "FUNC: " + json.dumps(self.function_call)
+            content = f"FUNC: {json.dumps(self.function_call)}"
         else:
             content = self.content
         name_str = f" ({self.name})" if self.name else ""
@@ -300,8 +300,7 @@ class LanguageModel(ABC):
         Returns:
             list of verbatim extracts from passages that are relevant to question
         """
-        docs = asyncio.run(self._get_verbatim_extracts(question, passages))
-        return docs
+        return asyncio.run(self._get_verbatim_extracts(question, passages))
 
     def get_summary_answer(self, question: str, passages: List[Document]) -> Document:
         """
@@ -350,7 +349,10 @@ class LanguageModel(ABC):
             sources = ""
         return Document(
             content=content,
-            metadata={"source": "SOURCE: " + sources, "cached": llm_response.cached},
+            metadata={
+                "source": f"SOURCE: {sources}",
+                "cached": llm_response.cached,
+            },
         )
 
 

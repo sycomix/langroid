@@ -41,7 +41,7 @@ def test_openai_gpt(test_settings: Settings, streaming, country, capital):
 
     # completion mode
     cfg.use_chat_for_completion = False
-    question = "What is the capital of " + country + "?"
+    question = f"What is the capital of {country}?"
 
     set_global(Settings(cache=False))
     response = mdl.generate(prompt=question, max_tokens=20)

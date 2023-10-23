@@ -83,10 +83,7 @@ def generate_summarizer_prompt(question: str, texts: List[str], k: int = 1) -> s
     content_lines = "\n".join([f"Content: {text}" for text in texts])
     actual_question_str += content_lines + "\n-----------\nFinal Answer:\n"
 
-    # Combine the request, demonstrations, and
-    # actual question to form the complete prompt
-    complete_prompt = demo_request + demo_placeholder + "\n" + actual_question_str
-    return complete_prompt
+    return demo_request + demo_placeholder + "\n" + actual_question_str
 
 
 def make_summarizer_demos(k: int) -> str:
@@ -105,7 +102,7 @@ def make_summarizer_demos(k: int) -> str:
             "At least one of the demos should have an " "'I don't know' answer. "
         )
 
-    meta_prompt = (
+    return (
         f"""
     Generate a templatized prompt for answering questions based on document extracts.
     The prompt should include clear instructions, {k} few-shot demos, and placeholders
@@ -130,7 +127,6 @@ def make_summarizer_demos(k: int) -> str:
     The final prompt should end with 'Answer:' to provide the response.
     """
     ).strip()
-    return meta_prompt
 
 
 def get_summary_answer(
@@ -207,8 +203,7 @@ def get_summary_answer(
         content = final_answer
         sources = ""
     return Document(
-        content=content,
-        metadata=DocMetaData(source="SOURCE: " + sources),
+        content=content, metadata=DocMetaData(source=f"SOURCE: {sources}")
     )
 
 
@@ -232,5 +227,4 @@ def followup_to_standalone(
     Chat history: {history}
     Follow-up question: {question} 
     """.strip()
-    standalone = LLM.generate(prompt=prompt, max_tokens=1024).message.strip()
-    return standalone
+    return LLM.generate(prompt=prompt, max_tokens=1024).message.strip()

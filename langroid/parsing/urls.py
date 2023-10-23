@@ -23,7 +23,7 @@ def get_user_input(msg: str, color: str = "blue") -> str:
     Returns:
         user input
     """
-    color_str = f"[{color}]{msg} " if color else msg + " "
+    color_str = f"[{color}]{msg} " if color else f"{msg} "
     print(color_str, end="")
     return input("")
 

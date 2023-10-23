@@ -155,10 +155,7 @@ class Task:
 
     @property
     def _level(self) -> int:
-        if self.parent_task is None:
-            return 0
-        else:
-            return self.parent_task._level + 1
+        return 0 if self.parent_task is None else self.parent_task._level + 1
 
     @property
     def _indent(self) -> str:
@@ -166,11 +163,11 @@ class Task:
 
     @property
     def _enter(self) -> str:
-        return self._indent + ">>>"
+        return f"{self._indent}>>>"
 
     @property
     def _leave(self) -> str:
-        return self._indent + "<<<"
+        return f"{self._indent}<<<"
 
     def add_sub_task(self, task: Task | List[Task]) -> None:
         """
@@ -429,11 +426,10 @@ class Task:
             Optional[ChatDocument]: response to `self.pending_message` from entity if
             valid, None otherwise
         """
-        if isinstance(e, Task):
-            actual_turns = e.turns if e.turns > 0 else turns
-            return e.run(self.pending_message, turns=actual_turns)
-        else:
+        if not isinstance(e, Task):
             return self._entity_responder_map[cast(Entity, e)](self.pending_message)
+        actual_turns = e.turns if e.turns > 0 else turns
+        return e.run(self.pending_message, turns=actual_turns)
 
     def result(self) -> ChatDocument:
         """
@@ -561,9 +557,9 @@ class Task:
             tool_type = f.tool_type.rjust(6)
             tool_name = f.tool.rjust(10)
             tool_str = f"{tool_type}({tool_name})" if tool_name != "" else ""
-            sender = f"[{color}]" + str(f.sender_entity).rjust(10) + f"[/{color}]"
+            sender = f"[{color}]{str(f.sender_entity).rjust(10)}" + f"[/{color}]"
             sender_name = f.sender_name.rjust(10)
-            recipient = "=>" + str(f.recipient).rjust(10)
+            recipient = f"=>{str(f.recipient).rjust(10)}"
             block = "X " + str(f.block or "").rjust(10)
             content = f"[{color}]{f.content}[/{color}]"
             msg_str = (

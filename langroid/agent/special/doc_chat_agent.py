@@ -194,10 +194,7 @@ class DocChatAgent(ChatAgent):
         if not self.llm_can_respond(query):
             return None
         query_str: str | None
-        if isinstance(query, ChatDocument):
-            query_str = query.content
-        else:
-            query_str = query
+        query_str = query.content if isinstance(query, ChatDocument) else query
         if query_str is None or query_str.startswith("!"):
             # direct query to LLM
             query_str = query_str[1:] if query_str is not None else None
@@ -297,7 +294,7 @@ class DocChatAgent(ChatAgent):
         return Document(
             content=content,
             metadata=DocMetaData(
-                source="SOURCE: " + sources,
+                source=f"SOURCE: {sources}",
                 sender=Entity.LLM,
                 cached=getattr(answer_doc.metadata, "cached", False),
             ),
@@ -403,8 +400,7 @@ class DocChatAgent(ChatAgent):
         {full_text}
         """.strip()
         with StreamingIfAllowed(self.llm):  # type: ignore
-            summary = Agent.llm_response(self, prompt)
-            return summary  # type: ignore
+            return Agent.llm_response(self, prompt)
 
     def justify_response(self) -> None:
         """Show evidence for last response"""
@@ -413,6 +409,6 @@ class DocChatAgent(ChatAgent):
             return
         source = self.response.metadata.source
         if len(source) > 0:
-            print("[magenta]" + source)
+            print(f"[magenta]{source}")
         else:
             print("[magenta]No source found")

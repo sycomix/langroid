@@ -185,8 +185,7 @@ class QdrantDB(VectorStore):
             with_vectors=False,
             with_payload=True,
         )
-        docs = [Document(**record.payload) for record in records]  # type: ignore
-        return docs
+        return [Document(**record.payload) for record in records]
 
     def similar_texts_with_scores(
         self,
@@ -215,7 +214,7 @@ class QdrantDB(VectorStore):
             for match in search_result
             if match is not None
         ]
-        if len(docs) == 0:
+        if not docs:
             logger.warning(f"No matches found for {text}")
             return []
         if settings.debug:

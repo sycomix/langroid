@@ -59,7 +59,7 @@ class Parser:
                 for p in chunks
                 if self.num_tokens(p.content) > 1.3 * self.config.chunk_size
             ]
-            if len(long_chunks) == 0:
+            if not long_chunks:
                 break
             short_chunks = [
                 p
@@ -69,7 +69,7 @@ class Parser:
             final_chunks += short_chunks
             chunks = self._split_para_sentence_once(long_chunks)
             if len(chunks) == len(long_chunks):
-                max_len = max([self.num_tokens(p.content) for p in long_chunks])
+                max_len = max(self.num_tokens(p.content) for p in long_chunks)
                 logger.warning(
                     f"""
                     Unable to split {len(long_chunks)} long chunks
@@ -194,7 +194,7 @@ class Parser:
         return chunks
 
     def split(self, docs: List[Document]) -> List[Document]:
-        if len(docs) == 0:
+        if not docs:
             return []
         if self.config.splitter == Splitter.PARA_SENTENCE:
             return self.split_para_sentence(docs)

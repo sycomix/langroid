@@ -105,12 +105,11 @@ class Agent(ABC):
     ) -> List[str]:
         if message_class is None:
             return list(self.llm_tools_map.keys())
-        else:
-            if not issubclass(message_class, ToolMessage):
-                raise ValueError("message_class must be a subclass of ToolMessage")
-            tool = message_class.default_value("request")
-            self.llm_tools_map[tool] = message_class
-            return [tool]
+        if not issubclass(message_class, ToolMessage):
+            raise ValueError("message_class must be a subclass of ToolMessage")
+        tool = message_class.default_value("request")
+        self.llm_tools_map[tool] = message_class
+        return [tool]
 
     def enable_message_handling(
         self, message_class: Optional[Type[ToolMessage]] = None
@@ -150,20 +149,18 @@ class Agent(ABC):
         Returns:
             str: formatting rules
         """
-        enabled_classes: List[Type[ToolMessage]] = list(self.llm_tools_map.values())
-        if len(enabled_classes) == 0:
+        if enabled_classes := list(self.llm_tools_map.values()):
+            return "\n\n".join(
+                [
+                    str(msg_cls.default_value("request"))
+                    + ":\n"
+                    + str(msg_cls.default_value("purpose"))
+                    for msg_cls in enabled_classes
+                    if msg_cls.default_value("request") in self.llm_tools_usable
+                ]
+            )
+        else:
             return "You can ask questions in natural language."
-
-        json_conditions = "\n\n".join(
-            [
-                str(msg_cls.default_value("request"))
-                + ":\n"
-                + str(msg_cls.default_value("purpose"))
-                for i, msg_cls in enumerate(enabled_classes)
-                if msg_cls.default_value("request") in self.llm_tools_usable
-            ]
-        )
-        return json_conditions
 
     def sample_multi_round_dialog(self) -> str:
         """
@@ -297,12 +294,7 @@ class Agent(ABC):
             # from a non-Assistant role, with a `function_call` in it
             return False
 
-        if message is not None and len(self.get_tool_messages(message)) > 0:
-            # if there is a valid "tool" message (either JSON or via `function_call`)
-            # then LLM cannot respond to it
-            return False
-
-        return True
+        return message is None or len(self.get_tool_messages(message)) <= 0
 
     @no_type_check
     def llm_response(
@@ -320,11 +312,7 @@ class Agent(ABC):
         if msg is None or not self.llm_can_respond(msg):
             return None
 
-        if isinstance(msg, ChatDocument):
-            prompt = msg.content
-        else:
-            prompt = msg
-
+        prompt = msg.content if isinstance(msg, ChatDocument) else msg
         with ExitStack() as stack:  # for conditionally using rich spinner
             if not self.llm.get_stream():
                 # show rich spinner only if not streaming!
@@ -361,7 +349,7 @@ class Agent(ABC):
             # we would have already displayed the msg "live" ONLY if
             # streaming was enabled, AND we did not find a cached response
             console.print(f"[green]{self.indent}", end="")
-            print("[green]" + response.message)
+            print(f"[green]{response.message}")
             displayed = True
 
         return ChatDocument.from_LLMResponse(response, displayed)
@@ -465,7 +453,7 @@ class Agent(ABC):
         results = [self.handle_tool_message(t) for t in tools]
 
         results_list = [r for r in results if r is not None]
-        if len(results_list) == 0:
+        if not results_list:
             return self.handle_message_fallback(msg)
         # there was a non-None result
         final = "\n".join(results_list)
@@ -568,5 +556,5 @@ class Agent(ABC):
                 return None
         answer = agent.llm_response(request)
         if answer != no_answer:
-            return (f"{agent_type} says: " + str(answer)).strip()
+            return f"{agent_type} says: {str(answer)}".strip()
         return None

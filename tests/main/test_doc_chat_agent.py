@@ -128,7 +128,7 @@ def test_doc_chat_agent(test_settings: Settings, query: str, expected: str):
     set_global(test_settings)
     ans = agent.llm_response(query).content
     expected = [e.strip() for e in expected.split(",")]
-    assert all([e in ans for e in expected])
+    assert all(e in ans for e in expected)
 
 
 def test_doc_chat_process(test_settings: Settings):
@@ -143,5 +143,5 @@ def test_doc_chat_process(test_settings: Settings):
         task.step()  # LLM answers
         ans = task.pending_message.content
         expected = [e.strip() for e in expected.split(",")]
-        assert all([e in ans for e in expected])
+        assert all(e in ans for e in expected)
         assert task.pending_message.metadata.sender == Entity.LLM

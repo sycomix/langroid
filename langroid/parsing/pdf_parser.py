@@ -14,10 +14,7 @@ def _text_from_pdf_reader(reader: PdfReader) -> str:
     Returns:
         str: the extracted text
     """
-    text = ""
-    for page in reader.pages:
-        text += page.extract_text()
-    return text
+    return "".join(page.extract_text() for page in reader.pages)
 
 
 def get_doc_from_pdf_url(url: str) -> Document:
@@ -33,7 +30,7 @@ def get_doc_from_pdf_url(url: str) -> Document:
     with BytesIO(response.content) as f:
         reader = PdfReader(f)
         text = _text_from_pdf_reader(reader)
-    return Document(content=text, metadata=DocMetaData(source=str(url)))
+    return Document(content=text, metadata=DocMetaData(source=url))
 
 
 def get_doc_from_pdf_file(path: str) -> Document:
@@ -48,4 +45,4 @@ def get_doc_from_pdf_file(path: str) -> Document:
     """
     reader = PdfReader(path)
     text = _text_from_pdf_reader(reader)
-    return Document(content=text, metadata=DocMetaData(source=str(path)))
+    return Document(content=text, metadata=DocMetaData(source=path))

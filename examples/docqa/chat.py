@@ -63,8 +63,8 @@ def chat(config: DocChatAgentConfig) -> None:
     default_urls_str = " (or leave empty for default URLs)" if is_new_collection else ""
     print("[blue]Enter some URLs or file/dir paths below " f"{default_urls_str}")
     inputs = get_list_from_user()
-    if len(inputs) == 0:
-        if is_new_collection:
+    if is_new_collection:
+        if len(inputs) == 0:
             inputs = config.default_paths
     agent.config.doc_paths = inputs
     agent.ingest()
@@ -81,7 +81,7 @@ def chat(config: DocChatAgentConfig) -> None:
         agent,
         llm_delegate=False,
         single_round=False,
-        system_message="You are " + system_msg,
+        system_message=f"You are {system_msg}",
     )
     task.run()
 
